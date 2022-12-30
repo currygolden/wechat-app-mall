@@ -3,7 +3,7 @@ const TOOLS = require('../../utils/tools.js')
 const AUTH = require('../../utils/auth')
 
 const APP = getApp()
-const a = 1
+const a = 2
 Page({
   data: {
     inputVal: '', // 搜索框内容
