@@ -1,7 +1,7 @@
 {
   "name": "wechat-app-mall",
   "version": "8.4.0",
-  "description": "删除 <float-menu />",
+  "description": "fish-mall",
   "main": "app.js",
   "dependencies": {
     "@vant/weapp": "^1.10.4",
@@ -10,8 +10,46 @@
     "wxa-plugin-canvas": "^1.1.12",
     "wxbarcode": "^1.0.2"
   },
+  "devDependencies": {
+    "husky": "^3.1.0",
+    "lint-staged": "^9.5.0",
+    "eslint": "7.7.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-config-standard": "14.1.1",
+    "eslint-plugin-flowtype": "^4.5.3",
+    "eslint-plugin-html": "^6.0.0",
+    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-standard": "4.0.1",
+    "babel-eslint": "^10.0.3",
+    "prettier": "^1.19.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "./**/*.{js,json,less,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "./**/*.wxml": [
+      "prettier --parser html --write",
+      "git add"
+    ],
+    "./**/*.{js}": [
+      "eslint --fix --quiet",
+      "git add"
+    ],
+    "./*.{js,ts,tsx,json,less,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",

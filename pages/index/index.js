@@ -3,10 +3,10 @@ const TOOLS = require('../../utils/tools.js')
 const AUTH = require('../../utils/auth')
 
 const APP = getApp()
-
+const a = 1
 Page({
   data: {
-    inputVal: "", // 搜索框内容
+    inputVal: '', // 搜索框内容
     goodsRecommend: [], // 推荐商品
     kanjiaList: [], //砍价商品列表
     pingtuanList: [], //拼团商品列表
@@ -26,12 +26,16 @@ Page({
     })
     if (category.vopCid1 || category.vopCid2) {
       wx.navigateTo({
-        url: '/pages/goods/list-vop?cid1=' + (category.vopCid1 ? category.vopCid1 : '') + '&cid2=' + (category.vopCid2 ? category.vopCid2 : ''),
+        url:
+          '/pages/goods/list-vop?cid1=' +
+          (category.vopCid1 ? category.vopCid1 : '') +
+          '&cid2=' +
+          (category.vopCid2 ? category.vopCid2 : '')
       })
     } else {
-      wx.setStorageSync("_categoryId", category.id)
+      wx.setStorageSync('_categoryId', category.id)
       wx.switchTab({
-        url: '/pages/category/category',
+        url: '/pages/category/category'
       })
     }
   },
@@ -39,33 +43,33 @@ Page({
     // 文章分类点击
     const category = this.data.cmsCategories[e.currentTarget.dataset.idx]
     wx.navigateTo({
-      url: '/pages/cms/list?categoryId=' + category.id,
+      url: '/pages/cms/list?categoryId=' + category.id
     })
   },
   toDetailsTap: function(e) {
-    console.log(e);
+    console.log(e)
     const id = e.currentTarget.dataset.id
     const supplytype = e.currentTarget.dataset.supplytype
     const yyId = e.currentTarget.dataset.yyid
     if (supplytype == 'cps_jd') {
       wx.navigateTo({
-        url: `/packageCps/pages/goods-details/cps-jd?id=${id}`,
+        url: `/packageCps/pages/goods-details/cps-jd?id=${id}`
       })
     } else if (supplytype == 'vop_jd') {
       wx.navigateTo({
-        url: `/pages/goods-details/vop?id=${yyId}&goodsId=${id}`,
+        url: `/pages/goods-details/vop?id=${yyId}&goodsId=${id}`
       })
     } else if (supplytype == 'cps_pdd') {
       wx.navigateTo({
-        url: `/packageCps/pages/goods-details/cps-pdd?id=${id}`,
+        url: `/packageCps/pages/goods-details/cps-pdd?id=${id}`
       })
     } else if (supplytype == 'cps_taobao') {
       wx.navigateTo({
-        url: `/packageCps/pages/goods-details/cps-taobao?id=${id}`,
+        url: `/packageCps/pages/goods-details/cps-taobao?id=${id}`
       })
     } else {
       wx.navigateTo({
-        url: `/pages/goods-details/index?id=${id}`,
+        url: `/pages/goods-details/index?id=${id}`
       })
     }
   },
@@ -90,47 +94,33 @@ Page({
       selectCurrent: e.index
     })
   },
-  onLoad: function(e) {
-    wx.showShareMenu({
-      withShareTicket: true,
-    })
+  onLoad: async function(e) {
+    this.initShare(e)
     const that = this
-    // 读取分享链接中的邀请人编号
-    if (e && e.inviter_id) {
-      wx.setStorageSync('referrer', e.inviter_id)
-    }
-    // 读取小程序码中的邀请人编号
-    if (e && e.scene) {
-      const scene = decodeURIComponent(e.scene)
-      if (scene) {        
-        wx.setStorageSync('referrer', scene.substring(11))
-      }
-    }
     // 静默式授权注册/登陆
-    AUTH.checkHasLogined().then(isLogined => {
-      if (!isLogined) {
-        AUTH.authorize().then( aaa => {
+    AUTH.checkHasLogined()
+      .then(isLogined => {
+        if (!isLogined) {
+          AUTH.authorize().then(aaa => {
+            AUTH.bindSeller()
+            // 展示购物车的badge
+            TOOLS.showTabBarBadge()
+          })
+        } else {
           AUTH.bindSeller()
           TOOLS.showTabBarBadge()
-        })
-      } else {
-        AUTH.bindSeller()
-        TOOLS.showTabBarBadge()
-      }
-    })
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    // 获取banners数据
     this.initBanners()
+    // 获取业务数据
     this.categories()
     this.cmsCategories()
     // https://www.yuque.com/apifm/nu0f75/wg5t98
-    WXAPI.goodsv2({
-      recommendStatus: 1
-    }).then(res => {
-      if (res.code === 0){
-        that.setData({
-          goodsRecommend: res.data.result
-        })
-      }      
-    })
+    this.getRecommend()
     that.getCoupons()
     that.getNotice()
     that.kanjiaGoods()
@@ -142,12 +132,31 @@ Page({
       this.readConfigVal()
     }
   },
+  initShare(e = {}) {
+    // 展示分享按钮
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    })
+    // 读取分享链接中的邀请人编号
+    if (e && e.inviter_id) {
+      wx.setStorageSync('referrer', e.inviter_id)
+    }
+    // 读取小程序码中的邀请人编号
+    if (e && e.scene) {
+      const scene = decodeURIComponent(e.scene)
+      if (scene) {
+        wx.setStorageSync('referrer', scene.substring(11))
+      }
+    }
+  },
+  // 从本地存储中获取配置参数
   readConfigVal() {
     wx.setNavigationBarTitle({
       title: wx.getStorageSync('mallName')
     })
     this.setData({
-      mallName:wx.getStorageSync('mallName')?wx.getStorageSync('mallName'):'',
+      mallName: wx.getStorageSync('mallName') ? wx.getStorageSync('mallName') : '',
       show_buy_dynamic: wx.getStorageSync('show_buy_dynamic')
     })
     const shopMod = wx.getStorageSync('shopMod')
@@ -158,7 +167,7 @@ Page({
       })
     }
   },
-  async miaoshaGoods(){
+  async miaoshaGoods() {
     // https://www.yuque.com/apifm/nu0f75/wg5t98
     const res = await WXAPI.goodsv2({
       miaosha: true
@@ -170,7 +179,7 @@ Page({
           ele.dateStartInt = new Date(ele.dateStart.replace(/-/g, '/')).getTime() - _now
         }
         if (ele.dateEnd) {
-          ele.dateEndInt = new Date(ele.dateEnd.replace(/-/g, '/')).getTime() -_now
+          ele.dateEndInt = new Date(ele.dateEnd.replace(/-/g, '/')).getTime() - _now
         }
       })
       this.setData({
@@ -178,7 +187,7 @@ Page({
       })
     }
   },
-  async initBanners(){
+  async initBanners() {
     const _data = {}
     // 读取头部轮播图
     const res1 = await WXAPI.banners({
@@ -195,7 +204,8 @@ Page({
     }
     this.setData(_data)
   },
-  onShow: function(e){
+  onShow: function(e) {
+    console.log('aapp', APP.globalData)
     this.setData({
       navHeight: APP.globalData.navHeight,
       navTop: APP.globalData.navTop,
@@ -215,7 +225,7 @@ Page({
       wx.removeStorageSync('refreshIndex')
     }
   },
-  async goodsDynamic(){
+  async goodsDynamic() {
     const res = await WXAPI.goodsDynamic(0)
     if (res.code == 0) {
       this.setData({
@@ -223,9 +233,9 @@ Page({
       })
     }
   },
-  async categories(){
+  async categories() {
     const res = await WXAPI.goodsCategory()
-    let categories = [];
+    let categories = []
     if (res.code == 0) {
       const _categories = res.data.filter(ele => {
         return ele.level == 1
@@ -235,15 +245,15 @@ Page({
     this.setData({
       categories: categories,
       curPage: 1
-    });
-    this.getGoodsList(0);
+    })
+    this.getGoodsList(0)
   },
   async getGoodsList(categoryId, append) {
     if (categoryId == 0) {
-      categoryId = "";
+      categoryId = ''
     }
     wx.showLoading({
-      "mask": true
+      mask: true
     })
     // https://www.yuque.com/apifm/nu0f75/wg5t98
     const res = await WXAPI.goodsv2({
@@ -259,66 +269,77 @@ Page({
       if (!append) {
         newData.goods = []
       }
-      this.setData(newData);
+      this.setData(newData)
       return
     }
-    let goods = [];
+    let goods = []
     if (append) {
       goods = this.data.goods
     }
     for (var i = 0; i < res.data.result.length; i++) {
-      goods.push(res.data.result[i]);
+      goods.push(res.data.result[i])
     }
     this.setData({
       loadingMoreHidden: true,
-      goods: goods,
-    });
+      goods: goods
+    })
   },
   getCoupons: function() {
-    var that = this;
-    WXAPI.coupons().then(function (res) {
+    var that = this
+    WXAPI.coupons().then(function(res) {
       if (res.code == 0) {
         that.setData({
           coupons: res.data
-        });
+        })
       }
     })
   },
-  onShareAppMessage: function() {    
+  getRecommend: function() {
+    WXAPI.goodsv2({
+      recommendStatus: 1
+    }).then(res => {
+      if (res.code === 0) {
+        that.setData({
+          goodsRecommend: res.data.result
+        })
+      }
+    })
+  },
+  onShareAppMessage: function() {
     return {
       title: '"' + wx.getStorageSync('mallName') + '" ' + wx.getStorageSync('share_profile'),
       path: '/pages/index/index?inviter_id=' + wx.getStorageSync('uid')
     }
   },
   getNotice: function() {
-    var that = this;
-    WXAPI.noticeList({pageSize: 5}).then(function (res) {
+    var that = this
+    WXAPI.noticeList({ pageSize: 5 }).then(function(res) {
       if (res.code == 0) {
         that.setData({
           noticeList: res.data
-        });
+        })
       }
     })
   },
   onReachBottom: function() {
     this.setData({
       curPage: this.data.curPage + 1
-    });
+    })
     this.getGoodsList(0, true)
   },
   onPullDownRefresh: function() {
     this.setData({
       curPage: 1
-    });
+    })
     this.getGoodsList(0)
     wx.stopPullDownRefresh()
   },
   // 获取砍价商品
-  async kanjiaGoods(){
+  async kanjiaGoods() {
     // https://www.yuque.com/apifm/nu0f75/wg5t98
     const res = await WXAPI.goodsv2({
       kanjia: true
-    });
+    })
     if (res.code == 0) {
       const kanjiaGoodsIds = []
       res.data.result.forEach(ele => {
@@ -331,7 +352,7 @@ Page({
             return _set.goodsId == ele.id
           })
           if (_process) {
-            ele.process = 100 * _process.numberBuy / _process.number
+            ele.process = (100 * _process.numberBuy) / _process.number
             ele.process = ele.process.toFixed(0)
           }
         })
@@ -341,12 +362,13 @@ Page({
       }
     }
   },
-  goCoupons: function (e) {
+  goCoupons: function(e) {
     wx.switchTab({
-      url: "/pages/coupons/index"
+      url: '/pages/coupons/index'
     })
   },
-  pingtuanGoods(){ // 获取团购商品列表
+  pingtuanGoods() {
+    // 获取团购商品列表
     const _this = this
     // https://www.yuque.com/apifm/nu0f75/wg5t98
     WXAPI.goodsv2({
@@ -359,7 +381,7 @@ Page({
       }
     })
   },
-  goSearch(){
+  goSearch() {
     wx.navigateTo({
       url: '/pages/search/index'
     })
@@ -367,7 +389,7 @@ Page({
   goNotice(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: '/pages/notice/show?id=' + id,
+      url: '/pages/notice/show?id=' + id
     })
   },
   async adPosition() {
@@ -389,7 +411,7 @@ Page({
       return
     }
     wx.navigateTo({
-      url: this.data.adPositionIndexLivePic.url,
+      url: this.data.adPositionIndexLivePic.url
     })
   },
   closeAdPositionIndexPop() {
@@ -406,7 +428,7 @@ Page({
       return
     }
     wx.navigateTo({
-      url: adPositionIndexPop.url,
+      url: adPositionIndexPop.url
     })
   },
   async cmsCategories() {
@@ -420,5 +442,5 @@ Page({
         cmsCategories
       })
     }
-  },
+  }
 })

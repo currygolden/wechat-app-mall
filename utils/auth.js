@@ -1,7 +1,8 @@
 const WXAPI = require('apifm-wxapi')
 import Dialog from '@vant/weapp/dialog/dialog'
 
-async function checkSession(){
+// 判断当前是否登陆
+async function checkSession() {
   return new Promise((resolve, reject) => {
     wx.checkSession({
       success() {
@@ -14,6 +15,7 @@ async function checkSession(){
   })
 }
 
+// 接口获取用户信息
 async function bindSeller() {
   const token = wx.getStorageSync('token')
   const referrer = wx.getStorageSync('referrer')
@@ -30,6 +32,13 @@ async function bindSeller() {
 }
 
 // 检测登录状态，返回 true / false
+/**
+ * @description 判断是否登陆以及登陆信息有效性
+ * 1. 读取本地token
+ * 2. 有，校验session是否过期（微信）
+ * 3. 校验token是否符合业务（业务权限）
+ * 4. 不满足，删除本地token
+ */
 async function checkHasLogined() {
   const token = wx.getStorageSync('token')
   if (!token) {
@@ -48,7 +57,7 @@ async function checkHasLogined() {
   return true
 }
 
-async function wxaCode(){
+async function wxaCode() {
   return new Promise((resolve, reject) => {
     wx.login({
       success(res) {
@@ -65,18 +74,18 @@ async function wxaCode(){
   })
 }
 
-async function login(page){
+async function login(page) {
   const _this = this
   wx.login({
-    success: function (res) {
+    success: function(res) {
       const extConfigSync = wx.getExtConfigSync()
       if (extConfigSync.subDomain) {
         WXAPI.wxappServiceLogin({
           code: res.code
-        }).then(function (res) {        
+        }).then(function(res) {
           if (res.code == 10000) {
             // 去注册
-            return;
+            return
           }
           if (res.code != 0) {
             // 登录错误
@@ -85,20 +94,20 @@ async function login(page){
               content: res.msg,
               showCancel: false
             })
-            return;
+            return
           }
           wx.setStorageSync('token', res.data.token)
           wx.setStorageSync('uid', res.data.uid)
           _this.bindSeller()
-          if ( page ) {
+          if (page) {
             page.onShow()
           }
         })
       } else {
-        WXAPI.login_wx(res.code).then(function (res) {        
+        WXAPI.login_wx(res.code).then(function(res) {
           if (res.code == 10000) {
             // 去注册
-            return;
+            return
           }
           if (res.code != 0) {
             // 登录错误
@@ -107,12 +116,12 @@ async function login(page){
               content: res.msg,
               showCancel: false
             })
-            return;
+            return
           }
           wx.setStorageSync('token', res.data.token)
           wx.setStorageSync('uid', res.data.uid)
           _this.bindSeller()
-          if ( page ) {
+          if (page) {
             page.onShow()
           }
         })
@@ -131,20 +140,21 @@ async function authorize() {
   // }
   return new Promise((resolve, reject) => {
     wx.login({
-      success: function (res) {
+      success: function(res) {
         const code = res.code
         let referrer = '' // 推荐人
-        let referrer_storge = wx.getStorageSync('referrer');
+        let referrer_storge = wx.getStorageSync('referrer')
         if (referrer_storge) {
-          referrer = referrer_storge;
+          referrer = referrer_storge
         }
         // 下面开始调用注册接口
         const extConfigSync = wx.getExtConfigSync()
+        console.log('extConfigSync', extConfigSync)
         if (extConfigSync.subDomain) {
           WXAPI.wxappServiceAuthorize({
             code: code,
             referrer: referrer
-          }).then(function (res) {
+          }).then(function(res) {
             if (res.code == 0) {
               wx.setStorageSync('token', res.data.token)
               wx.setStorageSync('uid', res.data.uid)
@@ -161,7 +171,7 @@ async function authorize() {
           WXAPI.authorize({
             code: code,
             referrer: referrer
-          }).then(function (res) {
+          }).then(function(res) {
             if (res.code == 0) {
               wx.setStorageSync('token', res.data.token)
               wx.setStorageSync('uid', res.data.uid)
@@ -183,12 +193,12 @@ async function authorize() {
   })
 }
 
-function loginOut(){
+function loginOut() {
   wx.removeStorageSync('token')
   wx.removeStorageSync('uid')
 }
 
-async function checkAndAuthorize (scope) {
+async function checkAndAuthorize(scope) {
   return new Promise((resolve, reject) => {
     wx.getSetting({
       success(res) {
@@ -198,7 +208,7 @@ async function checkAndAuthorize (scope) {
             success() {
               resolve() // 无返回参数
             },
-            fail(e){
+            fail(e) {
               console.error(e)
               // if (e.errMsg.indexof('auth deny') != -1) {
               //   wx.showToast({
@@ -213,12 +223,12 @@ async function checkAndAuthorize (scope) {
                 confirmText: '立即授权',
                 confirmColor: '#e64340',
                 success(res) {
-                  wx.openSetting();
+                  wx.openSetting()
                 },
-                fail(e){
+                fail(e) {
                   console.error(e)
                   reject(e)
-                },
+                }
               })
             }
           })
@@ -226,12 +236,12 @@ async function checkAndAuthorize (scope) {
           resolve() // 无返回参数
         }
       },
-      fail(e){
+      fail(e) {
         console.error(e)
         reject(e)
       }
     })
-  })  
+  })
 }
 
 module.exports = {

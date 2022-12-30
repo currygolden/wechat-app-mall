@@ -25,23 +25,24 @@
 [点击这里找答案，可用关键词搜索](https://www.it120.cc/help.html)
 
 ## 其他优秀开源模板推荐
-- [天使童装（uni-app版本）](https://github.com/gooking/uni-app-mall) [码云镜像](https://gitee.com/javazj/uni-app-mall)
+
+- [天使童装（uni-app 版本）](https://github.com/gooking/uni-app-mall) [码云镜像](https://gitee.com/javazj/uni-app-mall)
 - [舔果果小铺（升级版）](https://github.com/gooking/TianguoguoXiaopu)
 - [面馆风格小程序](https://gitee.com/javazj/noodle_shop_procedures)
-- [AI名片](https://github.com/gooking/visitingCard)
+- [AI 名片](https://github.com/gooking/visitingCard)
 - [仿海底捞订座排队 (uni-app)](https://github.com/gooking/dingzuopaidui) [码云镜像](https://gitee.com/javazj/dingzuopaidui)
 
 ## 联系作者
 
-| 微信好友 | QQ好友 |
-| :------: | :------: |
+|                                               微信好友                                               |                                               QQ 好友                                               |
+| :--------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------: |
 | <img src="https://dcdn.it120.cc/2021/09/13/61a80363-9085-4a10-9447-e276a3d40ab3.jpeg" width="200px"> | <img src="https://dcdn.it120.cc/2021/09/13/08a598d8-8186-4159-9930-2e4908accc5e.png" width="200px"> |
 
 ## 本项目使用了下面的组件，在此鸣谢
 
 - [接口 SDK](https://github.com/gooking/apifm-wxapi)
 
-- [api工厂](https://admin.it120.cc)
+- [api 工厂](https://admin.it120.cc)
 
 - [vant-weapp](https://youzan.github.io/vant-weapp)
 
@@ -51,10 +52,9 @@
 
 - [Apache ECharts](https://github.com/ecomfe/echarts-for-weixin)
 
-底部ICON图标使用：
+底部 ICON 图标使用：
 https://www.iconfont.cn/collections/detail?spm=a313x.7781069.0.da5a778a4&cid=18904
 
-  
 ## 如何升级到最新版
 
 - 小程序程序的修改和您后台的数据是独立的，所以不用担心您会丢失数据
@@ -64,3 +64,14 @@ https://www.iconfont.cn/collections/detail?spm=a313x.7781069.0.da5a778a4&cid=189
 - 开发工具里面上传代码提交微信审核
 - 审核通过后，小程序后台去发布新版本即可
 - 用户无需重新扫码，关闭小程序重新打开就是新版本了
+
+### api 工厂
+
+- login phone fish123
+- secret： b217eb797cfc22fa042874bac111d05e wx1849e89d04184600
+
+### 小程序工程实践
+
+- 抽离业务公共组件
+- 常见逻辑工具模块
+- 工程化方案完善
