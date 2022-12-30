@@ -3,7 +3,6 @@ const TOOLS = require('../../utils/tools.js')
 const AUTH = require('../../utils/auth')
 
 const APP = getApp()
-const a = 312
 Page({
   data: {
     inputVal: '', // 搜索框内容
@@ -22,7 +21,7 @@ Page({
   tabClick(e) {
     // 商品分类点击
     const category = this.data.categories.find(ele => {
-      return ele.id == e.currentTarget.dataset.id
+      return ele.id === e.currentTarget.dataset.id
     })
     if (category.vopCid1 || category.vopCid2) {
       wx.navigateTo({
@@ -51,19 +50,19 @@ Page({
     const id = e.currentTarget.dataset.id
     const supplytype = e.currentTarget.dataset.supplytype
     const yyId = e.currentTarget.dataset.yyid
-    if (supplytype == 'cps_jd') {
+    if (supplytype === 'cps_jd') {
       wx.navigateTo({
         url: `/packageCps/pages/goods-details/cps-jd?id=${id}`
       })
-    } else if (supplytype == 'vop_jd') {
+    } else if (supplytype === 'vop_jd') {
       wx.navigateTo({
         url: `/pages/goods-details/vop?id=${yyId}&goodsId=${id}`
       })
-    } else if (supplytype == 'cps_pdd') {
+    } else if (supplytype === 'cps_pdd') {
       wx.navigateTo({
         url: `/packageCps/pages/goods-details/cps-pdd?id=${id}`
       })
-    } else if (supplytype == 'cps_taobao') {
+    } else if (supplytype === 'cps_taobao') {
       wx.navigateTo({
         url: `/packageCps/pages/goods-details/cps-taobao?id=${id}`
       })
@@ -101,7 +100,7 @@ Page({
     AUTH.checkHasLogined()
       .then(isLogined => {
         if (!isLogined) {
-          AUTH.authorize().then(aaa => {
+          AUTH.authorize().then(() => {
             AUTH.bindSeller()
             // 展示购物车的badge
             TOOLS.showTabBarBadge()
@@ -161,7 +160,7 @@ Page({
     })
     const shopMod = wx.getStorageSync('shopMod')
     const shopInfo = wx.getStorageSync('shopInfo')
-    if (shopMod == '1' && !shopInfo) {
+    if (shopMod + '' === '1' && !shopInfo) {
       wx.redirectTo({
         url: '/pages/shop/select'
       })
@@ -172,7 +171,7 @@ Page({
     const res = await WXAPI.goodsv2({
       miaosha: true
     })
-    if (res.code == 0) {
+    if (+res.code === 0) {
       res.data.result.forEach(ele => {
         const _now = new Date().getTime()
         if (ele.dateStart) {
@@ -193,7 +192,7 @@ Page({
     const res1 = await WXAPI.banners({
       type: 'index'
     })
-    if (res1.code == 700) {
+    if (+res1.code === 700) {
       wx.showModal({
         title: '提示',
         content: '请在后台添加 banner 轮播图片，自定义类型填写 index',
@@ -204,8 +203,10 @@ Page({
     }
     this.setData(_data)
   },
-  onShow: function(e) {
+  onShow: function(val) {
     console.log('aapp', APP.globalData)
+    console.log('int', val)
+
     this.setData({
       navHeight: APP.globalData.navHeight,
       navTop: APP.globalData.navTop,
@@ -227,7 +228,7 @@ Page({
   },
   async goodsDynamic() {
     const res = await WXAPI.goodsDynamic(0)
-    if (res.code == 0) {
+    if (+res.code === 0) {
       this.setData({
         goodsDynamic: res.data
       })
@@ -236,9 +237,9 @@ Page({
   async categories() {
     const res = await WXAPI.goodsCategory()
     let categories = []
-    if (res.code == 0) {
+    if (+res.code === 0) {
       const _categories = res.data.filter(ele => {
-        return ele.level == 1
+        return +ele.level === 1
       })
       categories = categories.concat(_categories)
     }
@@ -249,7 +250,7 @@ Page({
     this.getGoodsList(0)
   },
   async getGoodsList(categoryId, append) {
-    if (categoryId == 0) {
+    if (+categoryId === 0) {
       categoryId = ''
     }
     wx.showLoading({
@@ -261,8 +262,9 @@ Page({
       page: this.data.curPage,
       pageSize: this.data.pageSize
     })
+    const resCode = +res.code || 0
     wx.hideLoading()
-    if (res.code == 404 || res.code == 700) {
+    if (resCode === 404 || resCode === 700) {
       let newData = {
         loadingMoreHidden: false
       }
@@ -287,7 +289,7 @@ Page({
   getCoupons: function() {
     var that = this
     WXAPI.coupons().then(function(res) {
-      if (res.code == 0) {
+      if (+res.code === 0) {
         that.setData({
           coupons: res.data
         })
@@ -298,8 +300,8 @@ Page({
     WXAPI.goodsv2({
       recommendStatus: 1
     }).then(res => {
-      if (res.code === 0) {
-        that.setData({
+      if (+res.code === 0) {
+        this.setData({
           goodsRecommend: res.data.result
         })
       }
@@ -314,7 +316,7 @@ Page({
   getNotice: function() {
     var that = this
     WXAPI.noticeList({ pageSize: 5 }).then(function(res) {
-      if (res.code == 0) {
+      if (+res.code === 0) {
         that.setData({
           noticeList: res.data
         })
@@ -340,16 +342,16 @@ Page({
     const res = await WXAPI.goodsv2({
       kanjia: true
     })
-    if (res.code == 0) {
+    if (+res.code === 0) {
       const kanjiaGoodsIds = []
       res.data.result.forEach(ele => {
         kanjiaGoodsIds.push(ele.id)
       })
       const goodsKanjiaSetRes = await WXAPI.kanjiaSet(kanjiaGoodsIds.join())
-      if (goodsKanjiaSetRes.code == 0) {
+      if (+goodsKanjiaSetRes.code === 0) {
         res.data.result.forEach(ele => {
           const _process = goodsKanjiaSetRes.data.find(_set => {
-            return _set.goodsId == ele.id
+            return _set.goodsId === ele.id
           })
           if (_process) {
             ele.process = (100 * _process.numberBuy) / _process.number
@@ -362,7 +364,7 @@ Page({
       }
     }
   },
-  goCoupons: function(e) {
+  goCoupons: function() {
     wx.switchTab({
       url: '/pages/coupons/index'
     })
@@ -394,13 +396,13 @@ Page({
   },
   async adPosition() {
     let res = await WXAPI.adPosition('indexPop')
-    if (res.code == 0) {
+    if (+res.code === 0) {
       this.setData({
         adPositionIndexPop: res.data
       })
     }
     res = await WXAPI.adPosition('index-live-pic')
-    if (res.code == 0) {
+    if (+res.code === 0) {
       this.setData({
         adPositionIndexLivePic: res.data
       })
@@ -434,9 +436,9 @@ Page({
   async cmsCategories() {
     // https://www.yuque.com/apifm/nu0f75/slu10w
     const res = await WXAPI.cmsCategories()
-    if (res.code == 0) {
+    if (+res.code === 0) {
       const cmsCategories = res.data.filter(ele => {
-        return ele.type == 'index' // 只筛选类型为 index 的分类
+        return ele.type === 'index' // 只筛选类型为 index 的分类
       })
       this.setData({
         cmsCategories

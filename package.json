@@ -13,7 +13,7 @@
   "devDependencies": {
     "husky": "^3.1.0",
     "lint-staged": "^9.5.0",
-    "eslint": "7.7.0",
+    "eslint": "^5.16.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-config-standard": "14.1.1",
     "eslint-plugin-flowtype": "^4.5.3",
@@ -42,7 +42,7 @@
       "prettier --parser html --write",
       "git add"
     ],
-    "**/*.{js}": [
+    "*.js": [
       "eslint --fix --quiet",
       "git add"
     ]
