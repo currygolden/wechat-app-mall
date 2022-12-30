@@ -34,20 +34,16 @@
     }
   },
   "lint-staged": {
-    "./**/*.{js,json,less,md}": [
+    "**/*.{js,ts,tsx,json,less,md}": [
       "prettier --write",
       "git add"
     ],
-    "./**/*.wxml": [
+    "**/*.wxml": [
       "prettier --parser html --write",
       "git add"
     ],
-    "./**/*.{js}": [
+    "**/*.{js}": [
       "eslint --fix --quiet",
-      "git add"
-    ],
-    "./*.{js,ts,tsx,json,less,md}": [
-      "prettier --write",
       "git add"
     ]
   },
